@@ -7,6 +7,35 @@ import parser from "recast/parsers/typescript";
 import { parseFromString } from "./reference-implementation/parser.js";
 import { resolve } from "./reference-implementation/resolver.js";
 
+if (import.meta.main) {
+  const pattern = getFilePattern();
+  const importMap = await tryFindImportMap();
+
+  console.log("Processing...");
+
+  let errors = 0;
+  let unmodified = 0;
+  let ok = 0;
+
+  for await (const { path } of walk(".")) {
+    if (!path.match(pattern)) continue;
+    try {
+      const code = await Deno.readTextFile(path);
+      const result = await removeImportMap(path, code, importMap);
+      if (result.modified) {
+        await Deno.writeTextFile(path, result.code);
+        ok++;
+      } else unmodified++;
+    } catch (e) {
+      console.log(e);
+      errors++;
+    }
+  }
+
+  console.log("Done.");
+  console.log(`Results: ${errors} errors ${unmodified} unmodified ${ok} ok`);
+}
+
 function getFilePattern(): RegExp {
   const {
     _: [pattern],
@@ -21,7 +50,7 @@ async function tryFindImportMap(): Promise<any> {
   if (path) {
     return parseFromString(
       await Deno.readTextFile(path),
-      toFileUrl(Deno.cwd()),
+      toFileUrl(Deno.cwd())
     );
   }
 
@@ -30,7 +59,7 @@ async function tryFindImportMap(): Promise<any> {
     const config = JSON.parse(await Deno.readTextFile("./deno.jsonc"));
     return parseFromString(
       await Deno.readTextFile(config.importMap),
-      toFileUrl(Deno.cwd()),
+      toFileUrl(Deno.cwd())
     );
   } catch {
     // not found
@@ -41,7 +70,7 @@ async function tryFindImportMap(): Promise<any> {
     const config = JSON.parse(await Deno.readTextFile("./deno.json"));
     return parseFromString(
       await Deno.readTextFile(config.importMap),
-      toFileUrl(Deno.cwd()),
+      toFileUrl(Deno.cwd())
     );
   } catch (e) {
     console.log(e);
@@ -51,29 +80,31 @@ async function tryFindImportMap(): Promise<any> {
   throw new Error("Could not find import map");
 }
 
-const pattern = getFilePattern();
-const importMap = await tryFindImportMap();
-
-for await (const { path } of walk(".")) {
-  if (!path.match(pattern)) continue;
-  removeImportMap(path, importMap);
-}
-
-async function removeImportMap(path: string, importMap: any) {
-  const code = await Deno.readTextFile(path);
+export function removeImportMap(
+  specifier: string | URL,
+  code: string,
+  importMap: {
+    imports?: {};
+    scope?: {};
+  }
+) {
   const ast = recast.parse(code, { parser });
+  let modified = false;
 
   recast.visit(ast, {
     visitImportDeclaration(path: any) {
-      const specifier = path.value.source.value;
-      const url = resolve(specifier, importMap, toFileUrl(Deno.cwd()));
+      const source = path.value.source.value;
+      const url = resolve(source, importMap, specifier);
+
       if (url.protocol === "https:" || url.protocol === "http:") {
-        path.value.source.value = url.href;
+        if (url.href !== path.value.source.value) {
+          path.value.source.value = url.href;
+          modified = true;
+        }
       }
       this.traverse(path);
     },
   });
 
-  const codeWithoutImportMap = recast.print(ast).code;
-  await Deno.writeTextFile(path, codeWithoutImportMap);
+  return { modified, code: modified ? recast.print(ast).code : code };
 }
