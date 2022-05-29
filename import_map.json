@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "recast": "https://jspm.dev/npm:recast",
+    "recast/": "https://jspm.dev/npm:recast/",
+    "std/": "https://deno.land/std@0.141.0/"
+  }
+}
