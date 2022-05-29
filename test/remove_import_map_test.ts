@@ -1,10 +1,7 @@
 import { parseFromString } from "../reference-implementation/parser.js";
 import { removeImportMap } from "../mod.ts";
-import {
-  assert,
-  assertEquals,
-} from "https://deno.land/std@0.141.0/testing/asserts.ts";
-import { toFileUrl } from "https://deno.land/std@0.141.0/path/mod.ts";
+import { assert, assertEquals } from "std/testing/asserts.ts";
+import { toFileUrl } from "std/path/mod.ts";
 
 Deno.test("remove import map", () => {
   const input = `
