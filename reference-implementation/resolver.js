@@ -1,14 +1,16 @@
 import { assert } from "std/testing/asserts.ts";
-import { tryURLLikeSpecifierParse, tryURLParse, isSpecial } from "./utils.js";
+import { isSpecial, tryURLLikeSpecifierParse, tryURLParse } from "./utils.js";
 
 export const resolve = (specifier, parsedImportMap, scriptURL) => {
   const asURL = tryURLLikeSpecifierParse(specifier, scriptURL);
   const normalizedSpecifier = asURL ? asURL.href : specifier;
   const scriptURLString = scriptURL.href;
 
-  for (const [scopePrefix, scopeImports] of Object.entries(
-    parsedImportMap.scopes
-  )) {
+  for (
+    const [scopePrefix, scopeImports] of Object.entries(
+      parsedImportMap.scopes,
+    )
+  ) {
     if (
       scopePrefix === scriptURLString ||
       (scopePrefix.endsWith("/") && scriptURLString.startsWith(scopePrefix))
@@ -16,7 +18,7 @@ export const resolve = (specifier, parsedImportMap, scriptURL) => {
       const scopeImportsMatch = resolveImportsMatch(
         normalizedSpecifier,
         asURL,
-        scopeImports
+        scopeImports,
       );
       if (scopeImportsMatch !== null) {
         return scopeImportsMatch;
@@ -27,7 +29,7 @@ export const resolve = (specifier, parsedImportMap, scriptURL) => {
   const topLevelImportsMatch = resolveImportsMatch(
     normalizedSpecifier,
     asURL,
-    parsedImportMap.imports
+    parsedImportMap.imports,
   );
   if (topLevelImportsMatch !== null) {
     return topLevelImportsMatch;
@@ -77,13 +79,13 @@ function resolveImportsMatch(normalizedSpecifier, asURL, specifierMap) {
         throw new TypeError(
           `Failed to resolve the specifier "${normalizedSpecifier}" as its after-prefix portion ` +
             `"${afterPrefix}" could not be URL-parsed relative to the URL prefix ` +
-            `"${resolutionResult.href}" mapped to by the prefix "${specifierKey}"`
+            `"${resolutionResult.href}" mapped to by the prefix "${specifierKey}"`,
         );
       }
 
       if (!url.href.startsWith(resolutionResult.href)) {
         throw new TypeError(
-          `The specifier "${normalizedSpecifier}" backtracks above its prefix "${specifierKey}"`
+          `The specifier "${normalizedSpecifier}" backtracks above its prefix "${specifierKey}"`,
         );
       }
 

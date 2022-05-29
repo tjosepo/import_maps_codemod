@@ -7,11 +7,6 @@ import parser from "recast/parsers/typescript";
 import { parseFromString } from "./reference-implementation/parser.js";
 import { resolve } from "./reference-implementation/resolver.js";
 
-type ImportMap = {
-  imports: Record<string, string>;
-  scopes?: Record<string, Record<string, string>>;
-};
-
 function getFilePattern(): RegExp {
   const {
     _: [pattern],
@@ -26,7 +21,7 @@ async function tryFindImportMap(): Promise<any> {
   if (path) {
     return parseFromString(
       await Deno.readTextFile(path),
-      toFileUrl(Deno.cwd())
+      toFileUrl(Deno.cwd()),
     );
   }
 
@@ -35,7 +30,7 @@ async function tryFindImportMap(): Promise<any> {
     const config = JSON.parse(await Deno.readTextFile("./deno.jsonc"));
     return parseFromString(
       await Deno.readTextFile(config.importMap),
-      toFileUrl(Deno.cwd())
+      toFileUrl(Deno.cwd()),
     );
   } catch {
     // not found
@@ -46,7 +41,7 @@ async function tryFindImportMap(): Promise<any> {
     const config = JSON.parse(await Deno.readTextFile("./deno.json"));
     return parseFromString(
       await Deno.readTextFile(config.importMap),
-      toFileUrl(Deno.cwd())
+      toFileUrl(Deno.cwd()),
     );
   } catch (e) {
     console.log(e);
@@ -80,4 +75,5 @@ async function removeImportMap(path: string, importMap: any) {
   });
 
   const codeWithoutImportMap = recast.print(ast).code;
+  await Deno.writeTextFile(path, codeWithoutImportMap);
 }

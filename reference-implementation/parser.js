@@ -1,5 +1,5 @@
 import { assert } from "std/testing/asserts.ts";
-import { tryURLParse, tryURLLikeSpecifierParse } from "./utils.js";
+import { tryURLLikeSpecifierParse, tryURLParse } from "./utils.js";
 
 export const parseFromString = (input, baseURL) => {
   const parsed = JSON.parse(input);
@@ -15,7 +15,7 @@ export const parseFromString = (input, baseURL) => {
     }
     sortedAndNormalizedImports = sortAndNormalizeSpecifierMap(
       parsed.imports,
-      baseURL
+      baseURL,
     );
   }
 
@@ -32,7 +32,7 @@ export const parseFromString = (input, baseURL) => {
   badTopLevelKeys.delete("scopes");
   for (const badKey of badTopLevelKeys) {
     console.warn(
-      `Invalid top-level key "${badKey}". Only "imports" and "scopes" can be present.`
+      `Invalid top-level key "${badKey}". Only "imports" and "scopes" can be present.`,
     );
   }
 
@@ -55,10 +55,12 @@ function sortAndNormalizeSpecifierMap(obj, baseURL) {
 
     if (typeof value !== "string") {
       console.warn(
-        `Invalid address ${JSON.stringify(
-          value
-        )} for the specifier key "${specifierKey}". ` +
-          `Addresses must be strings.`
+        `Invalid address ${
+          JSON.stringify(
+            value,
+          )
+        } for the specifier key "${specifierKey}". ` +
+          `Addresses must be strings.`,
       );
       normalized[normalizedSpecifierKey] = null;
       continue;
@@ -67,7 +69,7 @@ function sortAndNormalizeSpecifierMap(obj, baseURL) {
     const addressURL = tryURLLikeSpecifierParse(value, baseURL);
     if (addressURL === null) {
       console.warn(
-        `Invalid address "${value}" for the specifier key "${specifierKey}".`
+        `Invalid address "${value}" for the specifier key "${specifierKey}".`,
       );
       normalized[normalizedSpecifierKey] = null;
       continue;
@@ -76,7 +78,7 @@ function sortAndNormalizeSpecifierMap(obj, baseURL) {
     if (specifierKey.endsWith("/") && !addressURL.href.endsWith("/")) {
       console.warn(
         `Invalid address "${addressURL.href}" for package specifier key "${specifierKey}". ` +
-          `Package addresses must end with "/".`
+          `Package addresses must end with "/".`,
       );
       normalized[normalizedSpecifierKey] = null;
       continue;
@@ -101,14 +103,14 @@ function sortAndNormalizeScopes(obj, baseURL) {
   for (const [scopePrefix, potentialSpecifierMap] of Object.entries(obj)) {
     if (!isJSONObject(potentialSpecifierMap)) {
       throw new TypeError(
-        `The value for the "${scopePrefix}" scope prefix must be an object.`
+        `The value for the "${scopePrefix}" scope prefix must be an object.`,
       );
     }
 
     const scopePrefixURL = tryURLParse(scopePrefix, baseURL);
     if (scopePrefixURL === null) {
       console.warn(
-        `Invalid scope "${scopePrefix}" (parsed against base URL "${baseURL}").`
+        `Invalid scope "${scopePrefix}" (parsed against base URL "${baseURL}").`,
       );
       continue;
     }
@@ -116,7 +118,7 @@ function sortAndNormalizeScopes(obj, baseURL) {
     const normalizedScopePrefix = scopePrefixURL.href;
     normalized[normalizedScopePrefix] = sortAndNormalizeSpecifierMap(
       potentialSpecifierMap,
-      baseURL
+      baseURL,
     );
   }
 
@@ -162,6 +164,6 @@ function codeUnitCompare(a, b) {
 
   /* istanbul ignore next */
   throw new Error(
-    "This should never be reached because this is only used on JSON object keys"
+    "This should never be reached because this is only used on JSON object keys",
   );
 }
