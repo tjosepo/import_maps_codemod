@@ -1,6 +1,6 @@
 import { parse } from "std/flags/mod.ts";
 import { walk } from "std/fs/mod.ts";
-import { toFileUrl } from "std/path/mod.ts";
+import { join, toFileUrl } from "std/path/mod.ts";
 import * as recast from "recast";
 import parser from "recast/parsers/typescript";
 
@@ -81,7 +81,7 @@ async function tryFindImportMap(): Promise<any> {
 }
 
 export function removeImportMap(
-  specifier: string | URL,
+  specifier: string,
   code: string,
   importMap: {
     imports?: {};
@@ -94,7 +94,11 @@ export function removeImportMap(
   recast.visit(ast, {
     visitImportDeclaration(path: any) {
       const source = path.value.source.value;
-      const url = resolve(source, importMap, specifier);
+      const url = resolve(
+        source,
+        importMap,
+        toFileUrl(join(Deno.cwd(), specifier))
+      );
 
       if (url.protocol === "https:" || url.protocol === "http:") {
         if (url.href !== path.value.source.value) {
