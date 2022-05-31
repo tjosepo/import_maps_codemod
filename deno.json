@@ -1,3 +1,7 @@
 {
+  "tasks": {
+    "add": "deno run --allow-read --allow-write --no-check ./mod.ts add",
+    "remove": "deno run --allow-read --allow-write --no-check ./mod.ts remove"
+  },
   "importMap": "./import_map.json"
 }
