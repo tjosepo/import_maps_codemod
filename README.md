@@ -9,12 +9,12 @@ At the root of your project, run:
 
 #### Remove all bare imports
 ```
-deno run --allow-all --no-check https://deno.land/x/import_maps_codemod@0.1.0/mod.ts remove
+deno run --allow-all --no-check https://deno.land/x/import_maps_codemod@0.1.1/mod.ts remove
 ```
 
 #### Restore import map imports
 ```
-deno run --allow-all --no-check https://deno.land/x/import_maps_codemod@0.1.0/mod.ts add
+deno run --allow-all --no-check https://deno.land/x/import_maps_codemod@0.1.1/mod.ts add
 ```
 
 ## Usage

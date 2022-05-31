@@ -2,7 +2,7 @@ import * as parser from "./reference-implementation/parser.js";
 import * as resolver from "./reference-implementation/resolver.js";
 import * as utils from "./reference-implementation/utils.js";
 import * as apply from "./reference-implementation/apply.ts";
-import { join, posix, toFileUrl } from "std/path/mod.ts";
+import { join, posix, toFileUrl } from "https://deno.land/std@0.141.0/path/mod.ts";
 
 function toURL(base: string | URL) {
   if (base instanceof URL) return base;

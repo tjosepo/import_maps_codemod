@@ -1,4 +1,4 @@
-import { assert } from "std/testing/asserts.ts";
+import { assert } from "https://deno.land/std@0.141.0/testing/asserts.ts";
 import { tryURLLikeSpecifierParse, tryURLParse } from "./utils.js";
 
 export const parseFromString = (input, baseURL) => {

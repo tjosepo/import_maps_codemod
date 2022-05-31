@@ -1,7 +1,7 @@
-import { parse } from "std/flags/mod.ts";
-import { walk } from "std/fs/mod.ts";
-import * as recast from "recast";
-import parser from "recast/parsers/typescript";
+import { parse } from "https://deno.land/std@0.141.0/flags/mod.ts";
+import { walk } from "https://deno.land/std@0.141.0/fs/mod.ts";
+import * as recast from "https://jspm.dev/npm:recast";
+import parser from "https://jspm.dev/npm:recast/parsers/typescript";
 
 import ImportMap from "./ImportMap.ts";
 
